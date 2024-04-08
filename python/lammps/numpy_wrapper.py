@@ -63,12 +63,16 @@ class numpy_wrapper:
 
     .. note::
 
-       While the returned arrays of per-atom data are dimensioned
-       for the range [0:nmax] - as is the underlying storage -
-       the data is usually only valid for the range of [0:nlocal],
-       unless the property of interest is also updated for ghost
-       atoms.  In some cases, this depends on a LAMMPS setting, see
-       for example :doc:`comm_modify vel yes <comm_modify>`.
+       The returned arrays of per-atom data are by default dimensioned
+       for the range [0:nlocal] since that data is *always* valid.  The
+       underlying storage for the data, however, is typically allocated
+       for the range of [0:nmax]. Whether there is valid data in the range
+       [nlocal:nlocal+nghost] depends on whether the property of interest
+       is also updated for ghost atoms.  This is not often the case.  In
+       some cases, it depends on a LAMMPS setting, see for example
+       :doc:`comm_modify vel yes <comm_modify>`.  By using the optional
+       *nelem* parameter the size of the returned NumPy can be overridden.
+       There is no check whether the number of elements chosen is valid.
 
     :param name: name of the property
     :type name:  string
@@ -198,6 +202,13 @@ class numpy_wrapper:
     This is a wrapper around the :py:meth:`lammps.extract_fix() <lammps.lammps.extract_fix()>` method.
     It behaves the same as the original method, but returns NumPy arrays
     instead of ``ctypes`` pointers.
+
+    .. note::
+
+       When requesting global data, the fix data can only be accessed one
+       item at a time without access to the whole vector or array.  Thus this
+       function will always return a scalar.  To access vector or array elements
+       the "nrow" and "ncol" arguments need to be set accordingly (they default to 0).
 
     :param fid: fix ID
     :type fid:  string
